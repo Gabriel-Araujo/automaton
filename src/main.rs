@@ -1,11 +1,37 @@
+use std::process::exit;
+use std::env;
+use std::fs;
+use std::io::Read;
+
+
 mod lexical_parser;
+mod syntactic_analyzer;
 
 fn main() {
-    let mut teste = lexical_parser::Automaton::new();
+    let mut content: String = "".to_string();
+    let filepath = match env::args().nth(1) {
+        None => {
+            eprintln!("File path not given.");
+            exit(0x0);
+        },
+        Some(file) => {file}
+    };
 
-    let a = teste.process_input("program teste; {programa exemplo}\nvar\n\tvalor1: integer;\n\tvalor2: float;\nbegin\n\tvalor1 :=10;\nend.".to_string());
+    let mut file = match fs::File::open(filepath) {
+        Ok(content) => {content}
+        Err(_) => {
+            eprintln!("Could not find the given file.");
+            exit(0x3);
+        }
+    };
 
-    for lexeme in a {
+    file.read_to_string(&mut content).expect("");
+
+    let mut parser = lexical_parser::Automaton::new();
+    let lexemes = parser.process_input(content);
+
+
+    for lexeme in lexemes {
         println!("{:?}", lexeme)
     }
 }

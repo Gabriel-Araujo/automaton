@@ -60,6 +60,7 @@ impl Automaton {
                         self.new_line();
                         self.current_state = Q1;
                     },
+                    '\t' => self.current_state = Q1,
                     'p' => self.current_state = Q2,
                     'v' => self.current_state = Q9,
                     'i' => self.current_state = Q12,
@@ -71,6 +72,7 @@ impl Automaton {
                     'd' => self.current_state = Q57,
                     'n' => self.current_state = Q59,
                     '{' => self.current_state = Q62,
+                    char if char.is_alphabetic() => self.current_state = Q63,
                     '-' => self.current_state = Q65,
                     '+' => self.current_state = Q66,
                     '.' => self.current_state = Q67,
@@ -86,7 +88,7 @@ impl Automaton {
                     '/' => self.current_state = Q81,
                     'a' => self.current_state = Q82,
                     'o' => self.current_state = Q85,
-                    _ => self.current_state = Q63
+                    _ => self.current_state = INVALID
                 }
             }
             Q2 => {
@@ -437,7 +439,7 @@ impl Automaton {
                 else { self.current_state = Q63; }
             }
             Q51 => {
-                if character == ' ' {
+                if character == ' ' || character == '\n' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
@@ -601,6 +603,10 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
+                if character == '\n' {
+                    self.tokens.push(self.generate_token());
+                    self.current_state = Q1;
+                }
                 else if character.is_numeric() {
                     self.tokens.push(self.generate_token());
                     self.buffer = "".to_string();
@@ -747,7 +753,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q68;
                 }
-                else  if character == ' '{
+                else  if character == ' ' || character == '\n' || character == ')'{
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
@@ -1024,7 +1030,11 @@ impl Automaton {
         else if self.current_state == Q86 {
             Lexeme::new("Or".to_string(), TokenType::Logic, self.line)
         }
-        else { panic!("Invalid token.")}
+        else {
+            eprintln!("Last value on buffer: {}", self.buffer);
+            eprintln!("Invalid character at line {} and column {}", self.line, self.position);
+            panic!("Invalid token.")
+        }
     }
 }
 
@@ -1052,7 +1062,9 @@ impl Automaton {
                 panic!("Invalid character at line {} and column {}", self.line, self.position);
             }
         }
-        self.tokens.push(self.generate_token());
+        if self.current_state != Q1 {
+            self.tokens.push(self.generate_token());
+        }
 
         self.tokens.clone()
     }

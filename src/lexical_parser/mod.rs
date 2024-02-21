@@ -1,5 +1,6 @@
 mod token;
 
+use std::process::exit;
 use crate::lexical_parser::States::*;
 use crate::lexical_parser::token::{Lexeme, TokenType};
 
@@ -57,6 +58,10 @@ impl Automaton {
                 match character {
                     ' ' => self.current_state = Q1,
                     '\n' => {
+                        self.new_line();
+                        self.current_state = Q1;
+                    },
+                    '\r' => {
                         self.new_line();
                         self.current_state = Q1;
                     },
@@ -154,7 +159,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -333,7 +338,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -363,7 +368,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -390,7 +395,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -439,7 +444,7 @@ impl Automaton {
                 else { self.current_state = Q63; }
             }
             Q51 => {
-                if character == ' ' || character == '\n' {
+                if character == ' ' || character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
@@ -512,7 +517,7 @@ impl Automaton {
                     if character == '}' {
                         self.current_state = Q1;
                     }
-                    else if character == '\n' {
+                    else if character == '\n' || character == '\r' {
                         self.current_state = INVALID;
                     }
             }
@@ -527,7 +532,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -546,7 +551,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == ';' || character == '\n' {
+                else if character == ';' || character == '\n' || character == '\r' {
                     self.current_state = INVALID;
                 }
                 else if character.is_numeric() {
@@ -603,7 +608,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                if character == '\n' {
+                if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
@@ -624,7 +629,7 @@ impl Automaton {
             Q68 => { // ;
                 self.tokens.push(self.generate_token());
                 self.current_state = Q1;
-                if character == '\n' {
+                if character == '\n' || character == '\r' {
                     self.new_line();
                 }
             }
@@ -753,7 +758,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q68;
                 }
-                else  if character == ' ' || character == '\n' || character == ')'{
+                else  if character == ' ' || character == '\n' || character == '\r' || character == ')'{
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
@@ -895,7 +900,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -913,7 +918,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' {
+                else if character == '\n' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -1033,7 +1038,7 @@ impl Automaton {
         else {
             eprintln!("Last value on buffer: {}", self.buffer);
             eprintln!("Invalid character at line {} and column {}", self.line, self.position);
-            panic!("Invalid token.")
+            exit(1);
         }
     }
 }
@@ -1059,7 +1064,8 @@ impl Automaton {
             self.buffer.push(character);
             if self.current_state == INVALID {
                 eprintln!("Last value on buffer: {}", self.buffer);
-                panic!("Invalid character at line {} and column {}", self.line, self.position);
+                eprintln!("Invalid character at line {} and column {}", self.line, self.position);
+                exit(1);
             }
         }
         if self.current_state != Q1 {

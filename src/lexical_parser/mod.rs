@@ -30,6 +30,7 @@ enum States {
     Q81, // /
     Q82, Q83, Q84, // And
     Q85, Q86, // Or
+    Q87, // ,
     INVALID
 }
 
@@ -38,13 +39,79 @@ pub struct Automaton {
     position: usize,
     buffer: String,
     current_state: States,
-    tokens: Vec<Lexeme>
+    tokens: Vec<Lexeme>,
+    input: String,
 }
 
 impl Automaton {
     fn new_line(&mut self) {
         self.line += 1;
         self.position = 0;
+    }
+
+    fn peek(&self) -> char {
+        match self.input.chars().nth(self.position+1) {
+            None => ' ',
+            Some(value) => {value}
+        }
+    }
+
+    fn next_char_is_delimiter(&mut self, character: char) {
+        self.tokens.push(self.generate_token());
+        if character == ';' {
+            self.current_state = Q68;
+        }
+        else if character == '(' {
+            self.current_state = Q70;
+        }
+        else if character == ':' {
+            self.current_state = Q71;
+        }
+        else if character == ')' {
+            self.current_state = Q72;
+        }
+        else if character == ',' {
+            self.current_state = Q87;
+        }
+        else if character == '.' {
+            self.current_state = Q67;
+        }
+        else { self.current_state = Q1 }
+
+        self.tokens.push(self.generate_token());
+        self.current_state = Q1;
+    }
+
+    fn next_char_is_arithmetic(&mut self, character: char) {
+        self.tokens.push(self.generate_token());
+        if character == '+' {
+            self.current_state = Q66;
+        }
+        else if character == '-' {
+            self.current_state = Q65;
+        }
+        else if character == '/' {
+            self.current_state = Q81;
+        }
+        else if character == '*' {
+            self.current_state = Q69;
+        }
+        else { self.current_state = Q1 }
+
+        self.tokens.push(self.generate_token());
+        self.current_state = Q1;
+    }
+
+    fn is_delimiter(&self, character: char) -> bool {
+        let delimiters = [';', ':', '.', ',', '(', ')'];
+
+        delimiters.contains(&character)
+    }
+
+    fn is_arithmetic(&self, character: char) -> bool {
+        let delimiters = ['+', '-', '/', '*'];
+
+        delimiters.contains(&character)
     }
 
     fn increase_position(&mut self) {
@@ -62,14 +129,13 @@ impl Automaton {
                         self.current_state = Q1;
                     },
                     '\r' => {
-                        self.new_line();
                         self.current_state = Q1;
                     },
                     '\t' => self.current_state = Q1,
                     'p' => self.current_state = Q2,
                     'v' => self.current_state = Q9,
                     'i' => self.current_state = Q12,
-                    'f' => self.current_state = Q20,
+                    'r' => self.current_state = Q20,
                     'b' => self.current_state = Q25,
                     'e' => self.current_state = Q42,
                     't' => self.current_state = Q48,
@@ -93,6 +159,7 @@ impl Automaton {
                     '/' => self.current_state = Q81,
                     'a' => self.current_state = Q82,
                     'o' => self.current_state = Q85,
+                    ',' => self.current_state = Q87,
                     _ => self.current_state = INVALID
                 }
             }
@@ -155,11 +222,11 @@ impl Automaton {
                 else {self.current_state = Q63;}
             }
             Q11 => {
-                if character == ' ' {
+                if character == ' ' || character == '\r' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == '\n' || character == '\r' {
+                else if character == '\n' {
                     self.tokens.push(self.generate_token());
                     self.new_line();
                     self.current_state = Q1;
@@ -210,11 +277,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == ';' {
-                    self.tokens.push(self.generate_token());
-                    self.current_state = Q68;
-                }
-                else { self.current_state = INVALID }
+                else { self.next_char_is_delimiter(character) }
             }
             Q19 => {
                 if character == ' ' {
@@ -223,14 +286,14 @@ impl Automaton {
                 }
             }
             Q20 => {
-                if character == 'l' {
+                if character == 'e' {
                     self.current_state = Q21;
                 }
                 else { self.current_state = Q63; }
             }
             Q21 => {
-                if character == 'o' {
-                    self.current_state = Q22;
+                if character == 'a' {
+                    self.current_state = Q23;
                 }
                 else { self.current_state = Q63; }
             }
@@ -241,7 +304,7 @@ impl Automaton {
                 else { self.current_state = Q63; }
             }
             Q23 => {
-                if character == 't' {
+                if character == 'l' {
                     self.current_state = Q24;
                 }
                 else { self.current_state = Q63; }
@@ -251,11 +314,7 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
-                else if character == ';' {
-                    self.tokens.push(self.generate_token());
-                    self.current_state = Q68;
-                }
-                else { self.current_state = INVALID }
+                else { self.next_char_is_delimiter(character) }
             }
             Q25 => {
                 if character == 'o' {
@@ -400,9 +459,8 @@ impl Automaton {
                     self.new_line();
                     self.current_state = Q1;
                 }
-                else if character == '.' {
-                    self.tokens.push(self.generate_token());
-                    self.current_state = Q67;
+                else if self.is_delimiter(character) {
+                    self.next_char_is_delimiter(character);
                 }
                 else { self.current_state = Q63; }
             }
@@ -492,6 +550,11 @@ impl Automaton {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
                 }
+                else if character == '\n' || character == '\r' {
+                    self.tokens.push(self.generate_token());
+                    self.new_line();
+                    self.current_state = Q1;
+                }
                 else { self.current_state = Q63; }
             }
             Q59 => {
@@ -537,13 +600,15 @@ impl Automaton {
                     self.new_line();
                     self.current_state = Q1;
                 }
-                else if character == ';' {
-                    self.tokens.push(self.generate_token());
-                    self.current_state = Q68;
-                }
-                else if character == ':' {
+                else if character ==':' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q71;
+                }
+                else if self.is_delimiter(character) {
+                    self.next_char_is_delimiter(character);
+                }
+                else if self.is_arithmetic(character) {
+                    self.next_char_is_arithmetic(character);
                 }
             }
             Q64 => { // :=
@@ -678,6 +743,12 @@ impl Automaton {
                 else if character == ' ' {
                     self.tokens.push(self.generate_token());
                     self.current_state = Q1;
+                }
+                else if character == 'i' {
+                    self.current_state = Q12;
+                }
+                else if character == 'r' {
+                    self.current_state = Q20;
                 }
                 else {
                     self.tokens.push(self.generate_token());
@@ -925,6 +996,10 @@ impl Automaton {
                 }
                 else { self.current_state = Q63 }
             }
+            Q87 => {
+                self.tokens.push(self.generate_token());
+                self.current_state = Q1;
+            }
             INVALID => {}
         }
     }
@@ -1035,6 +1110,9 @@ impl Automaton {
         else if self.current_state == Q86 {
             Lexeme::new("Or".to_string(), TokenType::Logic, self.line)
         }
+        else if self.current_state == Q87 {
+            Lexeme::new(",".to_string(), TokenType::Delimiter, self.line)
+        }
         else {
             eprintln!("Last value on buffer: {}", self.buffer);
             eprintln!("Invalid character at line {} and column {}", self.line, self.position);
@@ -1051,12 +1129,14 @@ impl Automaton {
             position: 0,
             buffer: "".to_string(),
             current_state: Q1,
-            tokens: Vec::new()
+            tokens: Vec::new(),
+            input: "".to_string(),
         }
     }
 
     pub fn process_input(&mut self, input: String) -> Vec<Lexeme> {
         let input_as_chars = input.chars();
+        self.input = input;
 
         for character in input_as_chars {
             self.increase_position();

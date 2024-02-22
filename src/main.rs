@@ -2,10 +2,11 @@ use std::process::exit;
 use std::env;
 use std::fs;
 use std::io::Read;
-
+use std::time;
 
 mod lexical_parser;
 mod syntactic_analyzer;
+
 
 fn main() {
     let mut content: String = "".to_string();
@@ -25,10 +26,14 @@ fn main() {
         }
     };
 
+
     file.read_to_string(&mut content).expect("");
 
     let mut parser = lexical_parser::Automaton::new();
+
+    let timer = time::Instant::now();
     let lexemes = parser.process_input(content);
+    println!("lexical parser took {}μs.", timer.elapsed().as_micros());
 
 
     for lexeme in lexemes {

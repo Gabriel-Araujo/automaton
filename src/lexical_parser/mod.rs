@@ -1136,7 +1136,7 @@ impl Automaton {
 
     pub fn process_input(&mut self, input: String) -> Vec<Lexeme> {
         let input_as_chars = input.chars();
-        self.input = input;
+        self.input = input.clone();
 
         for character in input_as_chars {
             self.increase_position();

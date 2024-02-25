@@ -1,4 +1,4 @@
-mod token;
+pub mod token;
 
 use std::process::exit;
 use crate::lexical_parser::States::*;

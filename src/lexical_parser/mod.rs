@@ -1166,111 +1166,104 @@ mod tests {
     fn reads_program() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("program ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Program".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Program".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_var() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("var ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Var".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Var".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_integer() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("integer ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Integer".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Integer".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_if() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("if ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("If".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("If".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_float() {
         let mut automaton = Automaton::new();
-        let tokens = automaton.process_input("float ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Float".to_string(), TokenType::Keyword, 0));
+        let tokens = automaton.process_input("real ".to_string());
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Float".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_boolean() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("boolean ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Boolean".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Boolean".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_begin() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("begin ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Begin".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Begin".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_end() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("end ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("End".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("End".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_else() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("else ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Else".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Else".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_then() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("then ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Then".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Then".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_while() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("while ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("While".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("While".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_do() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("do ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Do".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Do".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_not() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("not ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Not".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Not".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_procedure() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("procedure ".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Procedure".to_string(), TokenType::Keyword, 0));
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Procedure".to_string(), TokenType::Keyword, 1));
     }
 
     #[test]
     fn reads_identifier() {
         let mut automaton = Automaton::new();
         let tokens = automaton.process_input("Hello_world".to_string());
-        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Hello_world".to_string(), TokenType::Identifier, 0));
-    }
-
-    #[test]
-    fn test_subject() {
-        let mut automaton = Automaton::new();
-        let input = "program teste; {programa exemplo}\nvar\n\tvalor: integer;\n\tvalor2: float;\nbegin\n\tvalor1 := 10;\nend";
-        // let tokens = automaton.process_input(input.to_string());
+        assert_eq!(*tokens.get(0).unwrap(), Lexeme::new("Hello_world".to_string(), TokenType::Identifier, 1));
     }
 }
